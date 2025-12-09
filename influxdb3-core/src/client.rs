@@ -56,6 +56,21 @@ impl Client {
         Ok(_query(self, query, Some(params)).await?.boxed())
     }
 
+    pub async fn query_with_params_as<T>(&self, query: &str, params: HashMap<&str, &str>) -> Result<BoxStream<'_, Result<T, InfluxDBError>>, InfluxDBError>
+    where
+        T: FromPoint,
+    {
+        Ok(
+            _query(self, query, Some(params)).await?
+                .map(|p| {
+                    match p {
+                        Ok(point) => T::from_point(point),
+                        Err(e) => Err(e),
+                    }
+                }).boxed()
+        )
+    }
+
     pub async fn write_points<I, T>(&self, points: I) -> Result<(), InfluxDBError>
     where
         T: ToPoint,

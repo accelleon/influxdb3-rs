@@ -44,10 +44,7 @@ impl Client {
         Ok(
             _query(self, query, None).await?
                 .map(|p| {
-                    match p {
-                        Ok(point) => T::from_point(point),
-                        Err(e) => Err(e),
-                    }
+                    p.and_then(|p| T::from_point(p))
                 }).boxed()
         )
     }
@@ -63,10 +60,7 @@ impl Client {
         Ok(
             _query(self, query, Some(params)).await?
                 .map(|p| {
-                    match p {
-                        Ok(point) => T::from_point(point),
-                        Err(e) => Err(e),
-                    }
+                    p.and_then(|p| T::from_point(p))
                 }).boxed()
         )
     }
